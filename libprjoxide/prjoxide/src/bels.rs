@@ -335,6 +335,26 @@ impl Bel {
         }
     }
 
+    pub fn make_oxide_combff(slice: usize, idx: usize) -> Bel {
+        let ch = Z_TO_CHAR[slice];
+        let postfix = format!("SLICE{}", ch);
+
+        let comb_bel = Bel::make_oxide_comb(slice, idx);
+        let ff_bel = Bel::make_oxide_ff(slice, idx);
+
+        let mut pins = comb_bel.pins;
+        pins.extend(ff_bel.pins);
+
+        Bel {
+            name: format!("{}_LUTFF{}", &postfix, idx),
+            beltype: String::from("OXIDE_COMBFF"),
+            pins: pins,
+            rel_x: 0,
+            rel_y: 0,
+            z: (slice << 3 | (idx + 6)) as u32,
+        }
+    }
+
     pub fn make_oxide_ramw(slice: usize) -> Bel {
         assert_eq!(slice, 2);
         let ch = Z_TO_CHAR[slice];
@@ -644,6 +664,9 @@ pub fn get_tile_bels(tiletype: &str, tiledata: &TileBitsDatabase) -> Vec<Bel> {
                     Bel::make_oxide_comb(slice, 1),
                     Bel::make_oxide_ff(slice, 0),
                     Bel::make_oxide_ff(slice, 1),
+                    // Artifical COMBFF bels representing LUT and FF together
+                    Bel::make_oxide_combff(slice, 0),
+                    Bel::make_oxide_combff(slice, 1),
                 ];
                 if slice == 2 {
                     bels.push(Bel::make_oxide_ramw(slice));
