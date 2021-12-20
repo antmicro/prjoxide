@@ -106,8 +106,20 @@ fn bram_map(cell_type: &str, site: &Site, bel: &SiteBel) -> Vec<(String, String)
     for bel_pin in bel.pins.iter().map(|p| &site.bel_pins[*p].pin_name) {
         let mut cell_pin = bel_pin.into();
         match &bel_pin[..] {
-            "ONEERR" => { cell_pin = "ONEBITERR".into() },
-            "TWOERR" => { cell_pin = "TWOBITERR".into() },
+            "AEMPTY" => { continue },
+            "AFULL"  => { continue },
+            "EMPTYF" => { continue },
+            "FULLF"  => { continue },
+            "DWS0"   => { continue },
+            "DWS1"   => { continue },
+            "DWS2"   => { continue },
+            "DWS3"   => { continue },
+            "DWS4"   => { continue },
+            _ => {},
+        }
+        match &bel_pin[..] {
+            "ONEERR" => { continue },
+            "TWOERR" => { continue },
             _ => {},
         }
         match cell_type {
@@ -126,19 +138,12 @@ fn bram_map(cell_type: &str, site: &Site, bel: &SiteBel) -> Vec<(String, String)
                 else if bel_pin.starts_with("DIB") { cell_pin = offset_bus(bel_pin, "DIB", "DI", 18) }
                 else if bel_pin.starts_with("DOA") { cell_pin = offset_bus(bel_pin, "DOA", "DO", 18) }
                 else if bel_pin.starts_with("DOB") { cell_pin = bel_pin.replace("DOB", "DO") }
-                else if bel_pin == "WEA" || bel_pin == "WEB" { cell_pin = "VCC".into(); }
+                else if bel_pin == "WEA" || bel_pin == "WEB" { cell_pin = "VHI".into() }
             },
             _ => unimplemented!(),
         }
         result.push((cell_pin, bel_pin.to_string()))
     }
-    result.extend(conv_map(&[
-        ("VCC", "DWS0"),
-        ("VCC", "DWS1"),
-        ("VCC", "DWS2"),
-        ("VCC", "DWS3"),
-        ("VCC", "DWS4"),
-    ]));
     result
 }
 
