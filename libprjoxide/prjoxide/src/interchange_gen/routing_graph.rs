@@ -315,7 +315,7 @@ impl <'a> GraphBuilder<'a> {
                 }
                 for (to_wire, conns) in tdb.conns.iter() {
                     for conn in conns.iter() {
-                        if is_site_wire(tt, &conn.from_wire) && is_site_wire(tt, to_wire) {
+                        if is_site_wire(tt, &conn.from_wire) || is_site_wire(tt, to_wire) {
                             continue;
                         }
                         lt.add_pip(sub_tile, self.ids.id(&conn.from_wire), self.ids.id(to_wire), 0);
