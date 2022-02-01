@@ -32,3 +32,4 @@ pub mod interchange_gen {
     pub mod bel_pin_map;
 }
 mod schema;
+pub mod fasm2bels;

@@ -12,6 +12,8 @@ use prjoxide::chip::*;
 use prjoxide::database::*;
 use prjoxide::fasmparse::*;
 
+use prjoxide::fasm2bels::{Fasm2Bels};
+
 use std::convert::TryInto;
 use std::fs::File;
 use std::io::*;
@@ -38,6 +40,8 @@ enum SubCommand {
     #[cfg(feature = "interchange")]
     #[clap(about = "export a FPGA interchange file (not yet implemented)")]
     InterchangeExport(InterchangeExport),
+    #[clap(name = "fasm2bels", about = "decode the design from a FASM file a.k.a. \"fasm2bels\"")]
+    Fasm2Bels(DoFasm2Bels),
 }
 
 #[derive(Clap)]
@@ -203,6 +207,25 @@ impl InterchangeExport {
     }
 }
 
+#[derive(Clap)]
+struct DoFasm2Bels {
+    #[clap(about = "input FASM file")]
+    fasm: String,
+}
+
+impl DoFasm2Bels {
+    pub fn run(&self) -> Result<()> {
+        let mut db = Database::new_builtin(DATABASE_DIR);
+        let parsed_fasm = ParsedFasm::parse(&self.fasm).unwrap();
+
+        // Initialize fasm2bels & run it
+        let mut f2b = Fasm2Bels::new(&mut db, &parsed_fasm);
+        f2b.run();
+
+        Ok(())
+    }
+}
+
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
     match opts.subcmd {
@@ -217,6 +240,9 @@ fn main() -> Result<()> {
         }
         #[cfg(feature = "interchange")]
         SubCommand::InterchangeExport(t) => {
+            t.run()
+        }
+        SubCommand::Fasm2Bels(t) => {
             t.run()
         }
     }
